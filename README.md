@@ -39,8 +39,22 @@ everything here:
 ```sh
 curl -sLo /tmp/magnetar.asc https://repo.magnetaros.com/magnetar.asc
 sudo pacman-key --add /tmp/magnetar.asc
-sudo pacman-key --lsign-key "$(gpg --show-keys --with-colons /tmp/magnetar.asc | awk -F: '/^fpr:/ {print $10; exit}')"
+sudo pacman-key --lsign-key 382D984841F8C8A2BFB952675623FAF3DF36FFAF
 ```
+
+Check the fingerprint before trusting it:
+
+```
+382D 9848 41F8 C8A2 BFB9  5267 5623 FAF3 DF36 FFAF
+Magnetar OS (package signing) <packages@magnetaros.com>
+rsa4096, created 2026-09-08, expires 2031-09-07
+```
+
+Normally you do not do any of this by hand: `magnetar-keyring` ships the same
+key and `pacman-key --populate magnetar` installs it, and that package is a
+dependency of `magnetar-repos`. The manual path above exists for bootstrapping,
+where the keyring package cannot be verified yet because its key is what you
+are installing.
 
 Do not substitute `SigLevel = Optional TrustAll` to get past a signature error.
 That setting means unsigned packages from this host run install scripts as root

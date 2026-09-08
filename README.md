@@ -17,7 +17,7 @@ Add to `/etc/pacman.conf`:
 ```ini
 [entro314labs]
 SigLevel = Optional TrustAll
-Server = https://entro314-labs.github.io/arch-repo/$arch
+Server = https://magnetar-os.github.io/arch-repo/$arch
 ```
 
 then:
@@ -35,7 +35,7 @@ Packages and the repository database are GPG-signed. To make pacman enforce
 that, import the key once and tighten `SigLevel`:
 
 ```sh
-curl -sLo /tmp/entro314labs.asc https://entro314-labs.github.io/arch-repo/entro314labs.asc
+curl -sLo /tmp/entro314labs.asc https://magnetar-os.github.io/arch-repo/entro314labs.asc
 sudo pacman-key --add /tmp/entro314labs.asc
 sudo pacman-key --lsign-key "$(gpg --show-keys --with-colons /tmp/entro314labs.asc | awk -F: '/^fpr:/ {print $10; exit}')"
 ```
@@ -43,7 +43,7 @@ sudo pacman-key --lsign-key "$(gpg --show-keys --with-colons /tmp/entro314labs.a
 ```ini
 [entro314labs]
 SigLevel = Required DatabaseRequired
-Server = https://entro314-labs.github.io/arch-repo/$arch
+Server = https://magnetar-os.github.io/arch-repo/$arch
 ```
 
 ## Layout

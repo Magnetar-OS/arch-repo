@@ -15,26 +15,8 @@ Nothing here is edited by hand; the git history is the repository's audit log.
 
 ## Use it
 
-Add to `/etc/pacman.conf`:
-
-```ini
-[magnetar]
-SigLevel = Required DatabaseOptional
-Server = https://repo.magnetaros.com/$arch
-```
-
-then:
-
-```sh
-sudo pacman -Syu
-sudo pacman -S magnetar-desktop
-```
-
-`x86_64` and `aarch64` are served; pacman picks yours via `$arch`.
-
-**On `SigLevel`.** `Required DatabaseOptional` is the right setting and the one
-Magnetar ships. Import the signing key first, or pacman will correctly refuse
-everything here:
+**1. Trust the signing key.** `[magnetar]` is `SigLevel = Required`, so pacman
+correctly refuses everything here until the key is known:
 
 ```sh
 curl -sLo /tmp/magnetar.asc https://repo.magnetaros.com/magnetar.asc
@@ -50,11 +32,36 @@ Magnetar OS (package signing) <packages@magnetaros.com>
 rsa4096, created 2026-09-08, expires 2031-09-07
 ```
 
-Normally you do not do any of this by hand: `magnetar-keyring` ships the same
-key and `pacman-key --populate magnetar` installs it, and that package is a
-dependency of `magnetar-repos`. The manual path above exists for bootstrapping,
-where the keyring package cannot be verified yet because its key is what you
-are installing.
+**2. Add the repository to `/etc/pacman.conf`, directly above `[cachyos]`**
+(below the CachyOS optimised repositories such as `[cachyos-v3]`, if you have
+them):
+
+```ini
+[magnetar]
+SigLevel = Required DatabaseOptional
+Server = https://repo.magnetaros.com/$arch
+```
+
+Position matters: pacman takes each package from the first repository that
+carries it. This is the order a Magnetar install uses, and the one
+`magnetar-repo-audit` checks — see
+[REPOS.md](https://github.com/Magnetar-OS/magnetar/blob/main/docs/REPOS.md).
+
+**3. Install.**
+
+```sh
+sudo pacman -Syu
+sudo pacman -S magnetar-desktop      # x86_64: the whole Magnetar desktop
+```
+
+On **aarch64** only the applications are published — the distribution
+packages (`magnetar-desktop` and the rest) are x86_64-only, as Magnetar is.
+Install the apps you want by name, for example `sudo pacman -S jump envelope`.
+
+`magnetar-desktop` pulls in `magnetar-keyring`, which ships this same key, so
+`pacman-key --populate magnetar` keeps it current from then on; step 1 exists
+for bootstrapping, where the keyring package cannot be verified yet because its
+key is what you are installing.
 
 Do not substitute `SigLevel = Optional TrustAll` to get past a signature error.
 That setting means unsigned packages from this host run install scripts as root
@@ -70,15 +77,24 @@ magnetar.asc     the release signing public key
 CNAME            repo.magnetaros.com
 ```
 
-Superseded package versions are kept briefly for rollback
-(`pacman -U x86_64/<older-file>.pkg.tar.zst`), then pruned; the database always
-points at the newest.
+The newest version of each package and the one before it are kept, for
+rollback (`sudo pacman -U https://repo.magnetaros.com/x86_64/<older-file>.pkg.tar.zst`);
+older ones are pruned when a new version is published. The database always
+points at the newest. One superseded version, not more, because GitHub Pages
+refuses to deploy a site over 1 GB, and the publishers fail before pushing a
+tree that would exceed it.
 
 ## What is in here
 
-One repository, not two. Distribution packages (`magnetar-repos`,
-`magnetar-settings`, `magnetar-desktop`, `magnetar-calamares`) and the
-application suite (`jump`, `peek`, `grabit`, `locket`, `envelope`, `circle`,
-`slate`) are published together. They were split while the applications lived
-in a different GitHub organisation; in one organisation that split is ceremony
-with two publishing pipelines behind it.
+One repository, not two: distribution packages and the application suite are
+published together. They were split while the applications lived in a
+different GitHub organisation; in one organisation that split is ceremony with
+two publishing pipelines behind it.
+
+| Kind | Packages | Architectures | Published by |
+|---|---|---|---|
+| Distribution | `magnetar-keyring`, `magnetar-repos`, `magnetar-settings`, `magnetar-branding`, `magnetar-desktop`, `magnetar-calamares`, `cutecosmic` | x86_64 | the Packages workflow in [Magnetar-OS/magnetar](https://github.com/Magnetar-OS/magnetar) |
+| Applications | `jump`, `magnetar-peek`, `grabit`, `locket`, `envelope`, `circle`, `slate`, `pencil`, `pocket` | x86_64, aarch64 | each app's release pipeline (linux-release-kit) |
+
+The previewer ships as `magnetar-peek` because Arch already has an unrelated
+`peek` (a GIF recorder).

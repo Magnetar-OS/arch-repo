@@ -94,7 +94,15 @@ two publishing pipelines behind it.
 | Kind | Packages | Architectures | Published by |
 |---|---|---|---|
 | Distribution | `magnetar-keyring`, `magnetar-repos`, `magnetar-settings`, `magnetar-branding`, `magnetar-desktop`, `magnetar-calamares`, `cutecosmic` | x86_64 | the Packages workflow in [Magnetar-OS/magnetar](https://github.com/Magnetar-OS/magnetar) |
-| Applications | `jump`, `magnetar-peek`, `grabit`, `locket`, `envelope`, `circle`, `slate`, `pencil`, `pocket` | x86_64, aarch64 | each app's release pipeline (linux-release-kit) |
+| Applications | `jump`, `magnetar-peek`, `grabit`, `locket`, `envelope`, `circle`, `slate`, `magnetar-pencil`, `pocket` | x86_64, aarch64 | each app's release pipeline (linux-release-kit) |
 
-The previewer ships as `magnetar-peek` because Arch already has an unrelated
-`peek` (a GIF recorder).
+Two applications carry the `magnetar-` prefix because their plain name was
+taken: the previewer is `magnetar-peek`, since Arch already has an unrelated
+`peek` (a GIF recorder), and the editor is `magnetar-pencil`, since other
+repositories carry an unrelated `pencil` (Evolus Pencil). Each replaces the
+package this repository used to publish under the plain name (`peek` ≤ 1.0.1,
+`pencil` ≤ 1.2.0) when you upgrade, and nothing else by that name.
+
+A package that another one here replaces does not stay: the Packages workflow
+removes the old name from the databases and from both directories, so it can
+no longer be installed from here by that name.
